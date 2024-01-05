@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Minecraft Server on AWS EC2'
+Resources:
+  MinecraftSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Enable SSH and Minecraft server port'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 25565
+          ToPort: 25565
+          CidrIp: 0.0.0.0/0
+  MinecraftServer:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t4g.small
+      ImageId: ami-02cd6549baea35b55
+      KeyName: Minecraft Server
+      SecurityGroups:
+        - Ref: MinecraftSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          wget https://download.oracle.com/java/17/latest/jdk-17_linux-aarch64_bin.tar.gz
+          sudo tar xvf jdk-17_linux-aarch64_bin.tar.gz -C /opt
+          wget https://piston-data.mojang.com/v1/objects/8dd1a28015f51b1803213892b50b7b4fc76e594d/server.jar -O minecraft_server.jar
+          echo 'eula=true' > eula.txt
+          /opt/jdk-17.0.9/bin/java -Xmx1024M -Xms1024M -jar minecraft_server.jar nogui
