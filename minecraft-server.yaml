@@ -31,3 +31,25 @@ Resources:
           wget https://piston-data.mojang.com/v1/objects/8dd1a28015f51b1803213892b50b7b4fc76e594d/server.jar -O minecraft_server.jar
           echo 'eula=true' > eula.txt
           /opt/jdk-17.0.9/bin/java -Xmx1024M -Xms1024M -jar minecraft_server.jar nogui
+          cat <<EOF > /etc/systemd/system/minecraft.service
+          [Unit]
+          Description=Minecraft Server
+          After=network.target
+
+          [Service]
+          User=root
+          Nice=5
+          KillMode=none
+          SuccessExitStatus=0 1
+          InaccessibleDirectories=/root /sys /srv /media -/lost+found
+          NoNewPrivileges=true
+          WorkingDirectory=/
+          ExecStart=/opt/jdk-17.0.9/bin/java -Xmx1024M -Xms1024M -jar minecraft_server.jar nogui
+          ExecStop=/bin/kill -SIGINT $MAINPID
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+          systemctl daemon-reload
+          systemctl enable minecraft.service
+          systemctl start minecraft.service
