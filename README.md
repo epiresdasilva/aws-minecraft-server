@@ -57,65 +57,27 @@ This template doesn't create an advanced security for that server, so if you nee
 
 ## Reboot
 
-The script for running the Minecraft will run only for the first time when the EC2 instance is created. So, if your instance reboot the Minecraft Server won't start again.
+Now, the Minecraft server have a service to make easier to maintan when a reboot is needed. 
+Following some useful commands.
 
-After creating my EC2 instance, I create a `systemd` to handle with that, but I didn't add that to my template.
-
-1. Create a systemd service file:
-```bash
-sudo vi /etc/systemd/system/minecraft.service
-```
-
-2. Create the content:
-```ini
-[Unit]
-Description=Minecraft Server
-After=network.target
-
-[Service]
-User=root
-Nice=5
-KillMode=none
-SuccessExitStatus=0 1
-InaccessibleDirectories=/root /sys /srv /media -/lost+found
-NoNewPrivileges=true
-WorkingDirectory=/
-ExecStart=/opt/jdk-17.0.9/bin/java -Xmx1024M -Xms1024M -jar minecraft_server.jar nogui
-ExecStop=/bin/kill -SIGINT $MAINPID
-
-[Install]
-WantedBy=multi-user.target
-```
-
-3. Reload the systemd:
-
-```bash
-sudo systemctl daemon-reload
-```
-
-4. Enable the service:
-
-```bash
-sudo systemctl enable minecraft.service
-```
-
-5. Start the service:
+1. Start the service:
 
 ```bash
 sudo systemctl start minecraft.service
 ```
 
-6. Check the service status:
+2. Check the service status:
 
 ```bash
 sudo systemctl status minecraft.service
 ```
 
-7. Service logs:
+3. Service logs:
 
 ```bash
 sudo journalctl -u minecraft.service
 ```
+
 ## Playing Minecraft
 
 Now, you have your own Minecraft Server and you are able to play with your friends and family.
