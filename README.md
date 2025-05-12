@@ -14,7 +14,7 @@ It's very simple to create. To do this faster and reproduceble, I create a Cloud
 
 You'll find a file called `minecraft-server.yaml`.
 
-Basically, in this file I create a Security Groud to allow only few ports I want to expose to the internet, like SSH and the port 25565 that is the port Minecraft Launcher connects.
+Basically, in this file I create a Security Group to allow only few ports I want to expose to the internet, like SSH and the port 25565 that is the port Minecraft Launcher connects.
 
 ```yaml
   MinecraftSecurityGroup:
@@ -36,15 +36,13 @@ Another important part is creating the EC2 instance. Basically, you need to choo
 
 ```yaml
       InstanceType: t4g.small
-      ImageId: ami-02cd6549baea35b55
+      ImageId: ami-0b41017b456027579
       KeyName: Minecraft Server
 ```
 
 The instance type you can find in the EC2 page or using the AWS Calculator, so doing that it's easier to understand how much it will costs.
 
 The image ID you'll find on the AMI Marketplace on the EC2 section on your AWS Management Console.
-
-You need to create a KeyPair also on the EC2 section. After creating, just put the name in the "KeyName" on the YAML file.
 
 Finally, you just need to run the following command:
 `aws cloudformation create-stack --stack-name MinecraftServerStack --template-body file://minecraft-server.yaml --region us-east-1`
