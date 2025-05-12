@@ -1,6 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Minecraft Server on AWS EC2'
 Resources:
+  MinecraftKeyPair:
+    Type: 'AWS::EC2::KeyPair'
+    Properties:
+      KeyName: MinecraftServerKey
+      KeyType: rsa
+      Tags:
+        - Key: Purpose
+          Value: MinecraftServer
+
   MinecraftSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -18,16 +27,16 @@ Resources:
     Type: 'AWS::EC2::Instance'
     Properties:
       InstanceType: t4g.small
-      ImageId: ami-02cd6549baea35b55
-      KeyName: Minecraft Server
+      ImageId: ami-0b41017b456027579
+      KeyName: !Ref MinecraftKeyPair
       SecurityGroups:
         - Ref: MinecraftSecurityGroup
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
           yum update -y
-          wget https://download.oracle.com/java/23/latest/jdk-23_linux-aarch64_bin.tar.gz
-          sudo tar xvf jdk-23_linux-aarch64_bin.tar.gz -C /opt
+          wget https://download.oracle.com/java/21/latest/jdk-21_linux-aarch64_bin.tar.gz
+          sudo tar xvf jdk-21_linux-aarch64_bin.tar.gz -C /opt
           wget https://piston-data.mojang.com/v1/objects/4707d00eb834b446575d89a61a11b5d548d8c001/server.jar -O minecraft_server.jar
           echo 'eula=true' > eula.txt
           export JAVA_HOME=$(find /opt -type d -name "jdk*" -print -quit)
@@ -48,7 +57,7 @@ Resources:
           NoNewPrivileges=true
           WorkingDirectory=/
           ExecStart=$JAVA_HOME/bin/java -Xmx1024M -Xms1024M -jar minecraft_server.jar nogui
-          ExecStop=/bin/kill -SIGINT $MAINPID
+          ExecStop=/bin/sh -c 'pkill -SIGINT -f "java.*minecraft_server.jar"'
 
           [Install]
           WantedBy=multi-user.target
